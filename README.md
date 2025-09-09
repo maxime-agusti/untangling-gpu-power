@@ -30,7 +30,9 @@ The project is structured as follows:
 
 ## 3\. Installation and Dependencies
 
-To use this artifact, you will need **Python 3.10** or a newer version. The Python dependencies can be installed using `pip`.
+To use this artifact, you will need a general-purpose computer running **Ubuntu 22.04** (or later) or **macOS 13** (or later).
+
+You will also need **Python 3.11** or a newer version. The Python dependencies can be installed using `pip`.
 
 1.  **Clone the Git repository** for the artifact or unzip the archive.
 2.  **Install the dependencies** using the `requirements.txt` file:
