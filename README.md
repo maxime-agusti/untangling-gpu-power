@@ -50,7 +50,7 @@ This section details the computational resources required to run the figure gene
 
 ## 5\. User Guide: Generating the Figures
 
-The scripts to generate each figure are located in the `src/` directory. Each script corresponds to one or more figures in the paper.
+The scripts to generate each figure are located in the `src/` directory. Each script will output a pdf file into `figures/` directory.
 
 For example, to generate **Figure 2** from the paper:
 
@@ -95,9 +95,6 @@ Similarly for the other figures:
     * **Command**: `python3 src/Sec-05_pass-through/Fig-11_WC-GPU-temp-pwr-util.py`:
     * **Memory**: 705 MiB
     * **Execution Time**: ~4 seconds
-
-
-Each script will output a pdf file into `figures/` directory.
 
 ## 6\. Description of Experiments (for informational purposes)
 
