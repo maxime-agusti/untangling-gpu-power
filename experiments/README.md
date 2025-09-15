@@ -42,7 +42,6 @@ Across the experiments, the following metrics are typically collected:
 ## Installation
 
 ```bash
-git clone https://github.com/jacquetpi/cloud-gpu-manager
 mkdir data ; mkdir bench-res
 python3 -m venv venv
 source venv/bin/activate
