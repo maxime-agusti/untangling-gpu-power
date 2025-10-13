@@ -1,6 +1,10 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
+import matplotlib
+
+matplotlib.rcParams['pdf.fonttype'] = 42
+matplotlib.rcParams['ps.fonttype'] = 42
 
 sns.color_palette("Set2")
 sns.set_theme(style="darkgrid")
@@ -46,6 +50,6 @@ dataset_domains['instances'] = dataset_domains['CONST_context'].apply(
 
 g = sns.catplot(data=dataset_domains.loc[dataset_domains['instances'].isin(
     ['1', '2', '4', '8'])], x='instances', y='SMI_power.draw', hue='oversubscription', kind="bar", height=4, aspect=1.4, sharey=True)
-g.set_axis_labels("Instances launched", "GPU power consumption (W)")
+g.set_axis_labels("Instances launched", "GPU power consumption (W)", fontsize=12)
 g.set(ylim=(100, None))
 plt.gcf().savefig('figures/TS-power.pdf', bbox_inches='tight')

@@ -1,6 +1,10 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
+import matplotlib
+
+matplotlib.rcParams['pdf.fonttype'] = 42
+matplotlib.rcParams['ps.fonttype'] = 42
 
 sns.color_palette("Set2")
 sns.set_theme()
@@ -59,11 +63,7 @@ corr_filtered = corr[:len(domain)][ipmi_keys].T.dropna()
 fig, ax = plt.subplots(figsize=(5, 7))  # Set the figure size
 plt.tight_layout()
 
-sns.heatmap(
-    corr_filtered,
-    ax=ax,
-    annot=True,
-    cmap=sns.color_palette(palette='RdGy_r', as_cmap=True),
-)
+sns.heatmap(corr_filtered, ax=ax, annot=True, cmap=sns.color_palette(
+    palette='RdGy_r', as_cmap=True), vmin=-1, vmax=1)
 
 plt.gcf().savefig('figures/PT-pearson-corr-ipmi.pdf', bbox_inches='tight')

@@ -2,8 +2,19 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
+import matplotlib
 
-sns.set_theme()
+matplotlib.rcParams['pdf.fonttype'] = 42
+matplotlib.rcParams['ps.fonttype'] = 42
+
+sns.set_style(
+    style='whitegrid',
+    rc={
+        'grid.linestyle': ':',
+    }
+)
+palette = sns.color_palette('deep')
+sns.set_palette(palette)
 
 df = pd.read_csv('data/250206-passthrough-chuc-4xA100-burn300.csv')
 df = pd.read_csv('data/250226-passthrough-chuc4-4xA100-burn300-4states.csv')
@@ -130,14 +141,16 @@ plt.tight_layout()
 
 g = sns.kdeplot(dataset_domains, x="sensor", hue="compute",
                 fill=True, ax=axes[0], hue_order=['0', '2', '4', '7'])
-axes[0].set(xlabel='Closest IPMI sensor value (°C)', ylabel='Density')
+axes[0].set_xlabel('Closest IPMI sensor value (°C)', fontsize=16)
+axes[0].set_ylabel('Density', fontsize=16)
 axes[0].legend(handles=axes[0].get_legend().legend_handles, labels=[
-               '0%', '~30%', '~60%', '100%'], title="GPU usage")
+               '0%', '~30%', '~60%', '100%'], title="GPU usage", fontsize=12)
 
 g = sns.kdeplot(dataset_domains, x="corrected",
                 hue="compute", fill=True, ax=axes[1])
-axes[1].set(xlabel='Closest IPMI sensor value corrected (°C)', ylabel='Density')
+axes[1].set_xlabel('Closest IPMI sensor value (°C)', fontsize=16)
+axes[1].set_ylabel('Density', fontsize=16)
 axes[1].legend(handles=axes[1].get_legend().legend_handles, labels=[
-               '0%', '~30%', '~60%', '100%'], title="GPU usage")
+               '0%', '~30%', '~60%', '100%'], title="GPU usage", fontsize=12)
 
 plt.gcf().savefig('figures/PT-density-4A100-4states-corrected.pdf', bbox_inches='tight')

@@ -19,7 +19,6 @@ def load_platform_df(file: str):
 
     timestamp_decrease = df.timestamp.diff() < 0
     restart = timestamp_decrease[timestamp_decrease].index.values
-    # df.loc[df['measure'] == drop_everything_before_measure].iloc[0].values[0].astype(int)
     range_start = 0
     frames = []
     for range_end in restart:
@@ -114,34 +113,7 @@ def load_yolo(file):
     return yolo_df
 
 
-def correlate_perf_power(metric_df, platform_df, bench: str, metric_perf: str):
-    res = {'domain': [], 'perf': [], 'perf%': [],
-           'power': [], 'power%': [], 'instances': []}
-    for domain in metric_df['domain'].unique():
-        for instances in metric_df.loc[metric_df['domain'] == domain]['instances'].unique():
-            perf = metric_df.loc[(metric_df['domain'] == domain) & (
-                metric_df['instances'] == instances)][metric_perf].median()
-            power = platform_df.loc[(platform_df['domain'] == domain) & (platform_df['bench'] == bench) & (
-                platform_df['instances'] == str(instances))]['SMI_power.draw'].median() / instances
-            res['domain'].append(domain)
-            res['perf'].append(perf)
-            perf_baseline = metric_df.loc[(metric_df['domain'] == domain) & (
-                metric_df['instances'] == 1)][metric_perf].median()
-            if bench in ['llama', 'yolo']:
-                res['perf%'].append((perf_baseline / perf)*100)
-            else:
-                res['perf%'].append((perf / perf_baseline)*100)
-            res['power'].append(power)
-            power_baseline = platform_df.loc[(platform_df['domain'] == domain) & (
-                platform_df['bench'] == bench) & (platform_df['instances'] == '1')]['SMI_power.draw'].median()
-            res['power%'].append((power/power_baseline)*100)
-            res['instances'].append(instances)
-    result = pd.DataFrame(res).pivot_table(index=['instances'], values=[
-        'perf', 'perf%', 'power', 'power%'], aggfunc='mean').reset_index()
-    return result
-
-
-def correlate_perf_power2(metric_df, platform_df, bench: str, metric_perf: str, baseline_platform, baseline_bench):
+def correlate_perf_power(metric_df, platform_df, bench: str, metric_perf: str, baseline_platform, baseline_bench):
     res = {'domain': [], 'perf': [], 'perf%': [],
            'power': [], 'power%': [], 'instances': []}
     for domain in metric_df['domain'].unique():
@@ -169,22 +141,6 @@ def correlate_perf_power2(metric_df, platform_df, bench: str, metric_perf: str, 
     return result
 
 
-dataset_domains = load_platform_df(
-    file='data/250311-bench-muva-2xH100-pt1.csv')
-
-root = 'data/'
-bench_root = 'bench-res/'
-
-files = {
-    # V100-
-    'V100-PCIE-32GB,250W': root + '250329-bench-chifflot-2xV100.csv',
-    # A100
-    'A100-SXM4-40GB,400W': root + '250326-bench-chuc-4xA100.csv',
-    # H100
-    'H100-NVL-94GB,400W': root + '250327-bench-muva-2xH100.csv',
-}
-
-
 all_platform_list = []
 all_blender_list = []
 all_hpcg_list = []
@@ -195,12 +151,50 @@ all_hpcg_ratio_list = []
 all_llama_ratio_list = []
 all_yolo_ratio_list = []
 
+
+root = 'data/'
+bench_root = 'bench-res/'
+
+files = {
+    # A100-PCIE-40GB (250W) | Vary CI sise but not GI (GI == max)
+    '1g,A100-PCIE-40GB (250W),ci': (root + '250322-migbench-grouille-2xA100-7g1-pt1.csv', root + '250320-migbench-grouille-2xA100-7g1-pt2.csv'),
+    '2g,A100-PCIE-40GB (250W),ci': root + '250323-migbench-grouille-2xA100-7g2.csv',
+    '3g,A100-PCIE-40GB (250W),ci': root + '250323-migbench-grouille-2xA100-7g3.csv',
+    '4g,A100-PCIE-40GB (250W),ci': root + '250324-migbench-grouille-2xA100-7g4.csv',
+    '7g,A100-PCIE-40GB (250W),ci': root + '250324-migbench-grouille-2xA100-7g7.csv',
+    # A100-PCIE-80GB (300W) | Vary CI sise but not GI (GI == max)
+    '1g,A100-PCIE-80GB (300W),ci': root + '250321-migbench-ovh-1xA100-7g1.csv',
+    '2g,A100-PCIE-80GB (300W),ci': root + '250322-migbench-ovh-1xA100-7g2.csv',
+    '3g,A100-PCIE-80GB (300W),ci': root + '250323-migbench-ovh-1xA100-7g3.csv',
+    '4g,A100-PCIE-80GB (300W),ci': root + '250323-migbench-ovh-1xA100-7g4.csv',
+    '7g,A100-PCIE-80GB (300W),ci': root + '250323-migbench-ovh-1xA100-7g7.csv',
+    # A100-SXM4-40GB (400W) | Vary CI sise but not GI (GI == max)
+    '1g,A100-SXM4-40GB (400W),ci': root + '250321-migbench-chuc-4xA100-7g1.csv',
+    '2g,A100-SXM4-40GB (400W),ci': root + '250322-migbench-chuc-4xA100-7g2.csv',
+    '3g,A100-SXM4-40GB (400W),ci': root + '250323-migbench-chuc-4xA100-7g3.csv',
+    '4g,A100-SXM4-40GB (400W),ci': root + '250323-migbench-chuc-4xA100-7g4.csv',
+    '7g,A100-SXM4-40GB (400W),ci': root + '250323-migbench-chuc-4xA100-7g7.csv',
+    # H100-PCIE-80GB (350W) | Vary CI sise but not GI (GI == max)
+    '1g,H100-PCIE-80GB (350W),ci': root + '250322-migbench-ovh-1xH100-7g1.csv',
+    '2g,H100-PCIE-80GB (350W),ci': root + '250323-migbench-ovh-1xH100-7g2.csv',
+    '3g,H100-PCIE-80GB (350W),ci': root + '250323-migbench-ovh-1xH100-7g3.csv',
+    '4g,H100-PCIE-80GB (350W),ci': root + '250323-migbench-ovh-1xH100-7g4.csv',
+    '7g,H100-PCIE-80GB (350W),ci': root + '250324-migbench-ovh-1xH100-7g7.csv',
+    # H100-NVL-94GB (400W)  | Vary CI sise but not GI (GI == max)
+    # Also available 250324-migbench-muva-2xH100-7g1-x2sm.csv
+    '1g,H100-NVL-94GB (400W),ci': root + '250324-migbench-muva-2xH100-7g1-x2sm.csv',
+    '2g,H100-NVL-94GB (400W),ci': root + '250325-migbench-muva-2xH100-7g2.csv',
+    '3g,H100-NVL-94GB (400W),ci': (root + '250325-migbench-muva-2xH100-7g3-pt1.csv', root + '250325-migbench-muva-2xH100-7g3-pt2.csv'),
+    '4g,H100-NVL-94GB (400W),ci': root + '250324-migbench-muva-2xH100-7g4.csv',
+    '7g,H100-NVL-94GB (400W),ci': root + '250323-migbench-muva-2xH100-7g7.csv',
+}
+
 # '250323-migbench-chuc-4xA100-7g7.csv'
 baseline_a100 = root + '250323-migbench-muva-2xH100-7g7.csv'
 baseline_h100 = root + '250323-migbench-muva-2xH100-7g7.csv'
 for label, locations in files.items():
 
-    gpu, spec = label.split(',')
+    compute_size, gpu, splitting = label.split(',')
 
     # Load referential
     if 'A100' in label:
@@ -233,16 +227,15 @@ for label, locations in files.items():
         yolo_df = load_yolo(location.replace(
             root, bench_root).replace('.csv', '-yolo.csv'))
 
-        platform_df['GPU'], platform_df['spec'] = gpu, spec
+        platform_df['compute_size'], platform_df['GPU'], platform_df['splitting'] = compute_size, gpu, splitting
         all_platform_list.append(platform_df)
 
         if blender_df is not None:
             # Correlate Perf/Power
-            # , baseline_platform, baseline_blender)
             blender_ratio_df = correlate_perf_power(
-                blender_df, platform_df, 'blender', 'samples_per_minute')
-            blender_df['GPU'], blender_df['spec'] = gpu, spec
-            blender_ratio_df['GPU'], blender_ratio_df['spec'] = gpu, spec
+                blender_df, platform_df, 'blender', 'samples_per_minute', baseline_platform, baseline_blender)
+            blender_df['compute_size'], blender_df['GPU'], blender_df['splitting'] = compute_size, gpu, splitting
+            blender_ratio_df['compute_size'], blender_ratio_df['GPU'], blender_ratio_df['splitting'] = compute_size, gpu, splitting
             all_blender_list.append(blender_df)
             all_blender_ratio_list.append(blender_ratio_df)
         else:
@@ -251,11 +244,10 @@ for label, locations in files.items():
 
         if hpcg_df is not None:
             # Correlate Perf/Power
-            # , baseline_platform, baseline_hpcg)
             hpcg_ratio_df = correlate_perf_power(
-                hpcg_df, platform_df, 'hpcg', 'GFLOP/s_Total_with_convergence_and_optimization_phase_overhead')
-            hpcg_df['GPU'], hpcg_df['spec'] = gpu, spec
-            hpcg_ratio_df['GPU'], hpcg_ratio_df['spec'] = gpu, spec
+                hpcg_df, platform_df, 'hpcg', 'GFLOP/s_Total_with_convergence_and_optimization_phase_overhead', baseline_platform, baseline_hpcg)
+            hpcg_df['compute_size'], hpcg_df['GPU'], hpcg_df['splitting'] = compute_size, gpu, splitting
+            hpcg_ratio_df['compute_size'], hpcg_ratio_df['GPU'], hpcg_ratio_df['splitting'] = compute_size, gpu, splitting
             all_hpcg_list.append(hpcg_df)
             all_hpcg_ratio_list.append(hpcg_ratio_df)
         else:
@@ -264,11 +256,10 @@ for label, locations in files.items():
 
         if llama_df is not None:
             # Correlate Perf/Power
-            # , baseline_platform, baseline_llama)
             llama_ratio_df = correlate_perf_power(
-                llama_df, platform_df, 'llama', 'measure')
-            llama_df['GPU'], llama_df['spec'] = gpu, spec
-            llama_ratio_df['GPU'], llama_ratio_df['spec'] = gpu, spec
+                llama_df, platform_df, 'llama', 'measure', baseline_platform, baseline_llama)
+            llama_df['compute_size'], llama_df['GPU'], llama_df['splitting'] = compute_size, gpu, splitting
+            llama_ratio_df['compute_size'], llama_ratio_df['GPU'], llama_ratio_df['splitting'] = compute_size, gpu, splitting
             all_llama_list.append(llama_df)
             all_llama_ratio_list.append(llama_ratio_df)
         else:
@@ -277,11 +268,10 @@ for label, locations in files.items():
 
         if yolo_df is not None:
             # Correlate Perf/Power
-            # , baseline_platform, baseline_yolo)
             yolo_ratio_df = correlate_perf_power(
-                yolo_df, platform_df, 'yolo', 'measure')
-            yolo_df['GPU'], yolo_df['spec'] = gpu, spec
-            yolo_ratio_df['GPU'], yolo_ratio_df['spec'] = gpu, spec
+                yolo_df, platform_df, 'yolo', 'measure', baseline_platform, baseline_yolo)
+            yolo_df['compute_size'], yolo_df['GPU'], yolo_df['splitting'] = compute_size, gpu, splitting
+            yolo_ratio_df['compute_size'], yolo_ratio_df['GPU'], yolo_ratio_df['splitting'] = compute_size, gpu, splitting
             all_yolo_list.append(yolo_df)
             all_yolo_ratio_list.append(yolo_ratio_df)
         else:
@@ -297,7 +287,6 @@ all_blender_ratio_df = pd.concat(all_blender_ratio_list)
 all_hpcg_ratio_df = pd.concat(all_hpcg_ratio_list)
 all_llama_ratio_df = pd.concat(all_llama_ratio_list)
 all_yolo_ratio_df = pd.concat(all_yolo_ratio_list)
-
 # Introduce complemetary metrics
 all_llama_df['measure_s'] = all_llama_df['measure'] / 1000
 all_yolo_df['measure_s'] = all_yolo_df['measure'] / 1000
@@ -312,26 +301,66 @@ all_llama_ratio_df['perf_f'] = 1 / (all_llama_ratio_df['perf_s'] / 60)
 all_yolo_ratio_df['perf_f'] = 1 / \
     (all_yolo_ratio_df['perf_s'] / 3600)  # nbre of training per h
 
-all_blender_ratio_df['bench'] = 'blender'
-all_hpcg_ratio_df['bench'] = 'HPCG'
-all_llama_ratio_df['bench'] = 'Llama'
-all_yolo_ratio_df['bench'] = 'Yolo'
+all_blender_ratio_df['gi_sum'] = all_blender_ratio_df['compute_size'].str.replace(
+    'g', '').astype(int) * all_blender_ratio_df['instances']
+all_hpcg_ratio_df['gi_sum'] = all_hpcg_ratio_df['compute_size'].str.replace(
+    'g', '').astype(int) * all_hpcg_ratio_df['instances']
+all_llama_ratio_df['gi_sum'] = all_llama_ratio_df['compute_size'].str.replace(
+    'g', '').astype(int) * all_llama_ratio_df['instances']
+all_yolo_ratio_df['gi_sum'] = all_yolo_ratio_df['compute_size'].str.replace(
+    'g', '').astype(int) * all_yolo_ratio_df['instances']
 
-all_ratio = pd.concat([all_blender_ratio_df, all_hpcg_ratio_df,
-                      all_llama_ratio_df, all_yolo_ratio_df])
+all_platform_df['gi_sum'] = all_platform_df['compute_size'].str.replace(
+    'g', '').astype(int) * all_platform_df['instances'].astype(int)
+all_blender_df['gi_sum'] = all_blender_df['compute_size'].str.replace(
+    'g', '').astype(int) * all_blender_df['instances']
+all_hpcg_df['gi_sum'] = all_hpcg_df['compute_size'].str.replace(
+    'g', '').astype(int) * all_hpcg_df['instances']
+all_llama_df['gi_sum'] = all_llama_df['compute_size'].str.replace(
+    'g', '').astype(int) * all_llama_df['instances']
+all_yolo_df['gi_sum'] = all_yolo_df['compute_size'].str.replace(
+    'g', '').astype(int) * all_yolo_df['instances']
 print('Done!')
 
+fig, axes = plt.subplots(1, 2, figsize=(10, 4), sharex=True)
 
-all_ratio = all_ratio.drop(all_ratio.loc[(all_ratio['GPU'].str.startswith('V100')) & (
-    all_ratio['bench'] == 'Llama') & (all_ratio['instances'] >= 7)].index)
-all_ratio = all_ratio.drop(all_ratio.loc[(all_ratio['GPU'].str.startswith('A100')) & (
-    all_ratio['bench'] == 'Llama') & (all_ratio['instances'] >= 8)].index)
+GPU = 'H100-NVL-94GB (400W)'
 
-ax = sns.lineplot(data=all_ratio, x="power%", y="perf%", hue="bench",
-                  style='GPU', estimator="min", markers=True, dashes=False)
-ax.set_ylabel('Performance per container (%)')
-ax.set_xlabel('Power per container (%)')
-ax.invert_xaxis()
-# sns.lineplot(x=[0,100], y=[0,100], ax=ax, color='black', alpha=0.4, linestyle='--')
+df_1g_blender = all_blender_ratio_df.loc[(
+    all_blender_ratio_df['compute_size'] == '1g') & (all_blender_ratio_df['GPU'] == GPU)]
+df_1g_blender['bench'] = 'blender'
+df_1g_hpcg = all_hpcg_ratio_df.loc[(
+    all_hpcg_ratio_df['compute_size'] == '1g') & (all_hpcg_ratio_df['GPU'] == GPU)]
+df_1g_hpcg['bench'] = 'hpcg'
+df_1g_llama = all_llama_ratio_df.loc[(
+    all_llama_ratio_df['compute_size'] == '1g') & (all_llama_ratio_df['GPU'] == GPU)]
+df_1g_llama['bench'] = 'llama'
+df_1g_yolo = all_yolo_ratio_df.loc[(
+    all_yolo_ratio_df['compute_size'] == '1g') & (all_yolo_ratio_df['GPU'] == GPU)]
+df_1g_yolo['bench'] = 'yolo'
 
-plt.gcf().savefig('figures/TS-perf-power.pdf', bbox_inches='tight')
+df_1g = pd.concat([df_1g_blender, df_1g_hpcg, df_1g_llama, df_1g_yolo])
+sns.lineplot(
+    data=df_1g, x="gi_sum", y="power%",
+    hue="bench", style="bench",
+    markers={"blender": "o", "hpcg": "s", "llama": "^",
+             "yolo": "X"},  # map each bench to a marker
+    dashes=False, markersize=8,
+    ax=axes[0]
+)
+sns.lineplot(
+    data=df_1g, x="gi_sum", y="perf%",
+    hue="bench", style="bench",
+    markers={"blender": "o", "hpcg": "s", "llama": "^",
+             "yolo": "X"},  # map each bench to a marker
+    dashes=False, markersize=8,
+    ax=axes[1]
+)
+axes[0].set_xlabel("Compute slice allocated", fontsize=14)
+axes[0].set_ylabel("Power per container (%)", fontsize=14)
+axes[1].get_legend().remove()
+axes[1].set_xlabel("Compute slice allocated", fontsize=14)
+axes[1].set_ylabel("Performance per container (%)", fontsize=14)
+
+# fig.text(0.5, -0.05, "Scaling with number of 1g slices on H100-NVL-94GB (power & performance)", ha="center")
+plt.gcf().savefig('figures/MIG-GI-bench-zoom.pdf', bbox_inches='tight')

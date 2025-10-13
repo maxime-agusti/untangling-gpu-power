@@ -1,9 +1,12 @@
 import os.path
 
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 import seaborn as sns
+import matplotlib
+
+matplotlib.rcParams['pdf.fonttype'] = 42
+matplotlib.rcParams['ps.fonttype'] = 42
 
 sns.color_palette("Set2")
 sns.set_theme(style="darkgrid")
@@ -13,8 +16,6 @@ def load_platform_df(file: str):
 
     df = pd.read_csv(file)
     df.reset_index(inplace=True)
-
-    drop_everything_before_measure = 'idle'
 
     timestamp_decrease = df.timestamp.diff() < 0
     restart = timestamp_decrease[timestamp_decrease].index.values
@@ -154,32 +155,6 @@ all_yolo_ratio_list = []
 
 root = 'data/'
 bench_root = 'bench-res/'
-# files = {
-# # A100 | Vary GI sise but not CI (CI == GI)
-#     '1g,A100,gi':root + '250316-migbench-grouille-2xA100-1g1.csv',
-#     '2g,A100,gi':root + '250316-migbench-grouille-2xA100-2g2.csv',
-#     '3g,A100,gi':root + '250317-migbench-grouille-2xA100-3g3.csv',
-#     '4g,A100,gi':root + '250317-migbench-grouille-2xA100-4g4.csv',
-#     '7g,A100,gi':root + '250317-migbench-grouille-2xA100-7g7.csv',
-# # A100 | Vary CI sise but not GI (GI == max)
-#     '1g,A100,ci':root + '250316-migbench-grouille-2xA100-7g1.csv',
-#     '2g,A100,ci':root + '250316-migbench-grouille-2xA100-7g2.csv',
-#     '3g,A100,ci':root + '250315-migbench-grouille-2xA100-7g3.csv',
-#     '4g,A100,ci':root + '250317-migbench-grouille-2xA100-7g4.csv',
-#     '7g,A100,ci':root + '250317-migbench-grouille-2xA100-7g7.csv',
-# # H100 | Vary GI sise but not CI (CI == GI)
-#     '1g,H100,gi':root + '250316-migbench-muva-2xH100-1g1.csv',
-#     '2g,H100,gi':root + '250316-migbench-muva-2xH100-2g2.csv',
-#     '3g,H100,gi':root + '250317-migbench-muva-2xH100-3g3.csv',
-#     '4g,H100,gi':root + '250317-migbench-muva-2xH100-4g4.csv',
-#     '7g,H100,gi':root + '250316-migbench-muva-2xH100-7g7.csv',
-# # H100 | Vary CI sise but not GI (GI == max)
-#     '1g,H100,ci':root + '250314-migbench-muva-2xH100-7g1.csv',
-#     '2g,H100,ci':root + '250314-migbench-muva-2xH100-7g2.csv',
-#     '3g,H100,ci':root + '250315-migbench-muva-2xH100-7g3.csv',
-#     '4g,H100,ci':root + '250315-migbench-muva-2xH100-7g4.csv',
-#     '7g,H100,ci':root + '250316-migbench-muva-2xH100-7g7.csv',
-# }
 
 files = {
     # A100-PCIE-40GB (250W) | Vary CI sise but not GI (GI == max)
@@ -351,35 +326,39 @@ print('Done!')
 
 fig, axes = plt.subplots(3, 4, figsize=(22, 14))
 marker_size = 75
+text_size = 14
 ######################
 # Power per instance #
 ######################
 
 sns.scatterplot(data=all_blender_ratio_df, x="gi_sum", y="power%",
                 style='compute_size', hue='GPU', ax=axes[0][0], s=marker_size)
-axes[0][0].set_title('Blender benchmark', fontweight='bold')
-axes[0][0].set_xlabel('Compute size allocated')
-axes[0][0].set_ylabel('Power per container (%)')
+axes[0][0].set_title('Blender benchmark',
+                     fontweight='bold', fontsize=text_size+2)
+axes[0][0].set_xlabel('Compute size allocated', fontsize=text_size)
+axes[0][0].set_ylabel('Power per container (%)', fontsize=text_size)
 axes[0][0].get_legend().remove()
 
 sns.scatterplot(data=all_hpcg_ratio_df, x="gi_sum", y="power%",
                 style='compute_size', hue='GPU',  ax=axes[0][1], s=marker_size)
-axes[0][1].set_title('HPCG benchmark', fontweight='bold')
-axes[0][1].set_xlabel('Compute size allocated')
+axes[0][1].set_title('HPCG benchmark', fontweight='bold', fontsize=text_size+2)
+axes[0][1].set_xlabel('Compute size allocated', fontsize=text_size)
 axes[0][1].set_ylabel('')
 axes[0][1].get_legend().remove()
 
 sns.scatterplot(data=all_llama_ratio_df, x="gi_sum", y="power%",
                 style='compute_size', hue='GPU',  ax=axes[0][2], s=marker_size)
-axes[0][2].set_title('Llama inference time', fontweight='bold')
-axes[0][2].set_xlabel('Compute size allocated')
+axes[0][2].set_title('Llama inference time',
+                     fontweight='bold', fontsize=text_size+2)
+axes[0][2].set_xlabel('Compute size allocated', fontsize=text_size)
 axes[0][2].set_ylabel('')
 axes[0][2].get_legend().remove()
 
 sns.scatterplot(data=all_yolo_ratio_df, x="gi_sum", y="power%",
                 style='compute_size', hue='GPU',  ax=axes[0][3], s=marker_size)
-axes[0][3].set_title('Yolo training time', fontweight='bold')
-axes[0][3].set_xlabel('Compute size allocated')
+axes[0][3].set_title('Yolo training time',
+                     fontweight='bold', fontsize=text_size+2)
+axes[0][3].set_xlabel('Compute size allocated', fontsize=text_size)
 axes[0][3].set_ylabel('')
 axes[0][3].get_legend().remove()
 
@@ -388,25 +367,25 @@ axes[0][3].get_legend().remove()
 ######################
 sns.scatterplot(data=all_blender_ratio_df, x="gi_sum", y="perf%",
                 style='compute_size', hue='GPU',  ax=axes[1][0], s=marker_size)
-axes[1][0].set_xlabel('Compute size allocated')
-axes[1][0].set_ylabel('Performance per container (%)')
+axes[1][0].set_xlabel('Compute size allocated', fontsize=text_size)
+axes[1][0].set_ylabel('Performance per container (%)', fontsize=text_size)
 axes[1][0].get_legend().remove()
 
 sns.scatterplot(data=all_hpcg_ratio_df, x="gi_sum", y="perf%",
                 style='compute_size', hue='GPU',  ax=axes[1][1], s=marker_size)
-axes[1][1].set_xlabel('Compute size allocated')
+axes[1][1].set_xlabel('Compute size allocated', fontsize=text_size)
 axes[1][1].set_ylabel('')
 axes[1][1].get_legend().remove()
 
 sns.scatterplot(data=all_llama_ratio_df, x="gi_sum", y="perf%",
                 style='compute_size', hue='GPU',  ax=axes[1][2], s=marker_size)
-axes[1][2].set_xlabel('Compute size allocated')
+axes[1][2].set_xlabel('Compute size allocated', fontsize=text_size)
 axes[1][2].set_ylabel('')
 axes[1][2].get_legend().remove()
 
 sns.scatterplot(data=all_yolo_ratio_df, x="gi_sum", y="perf%",
                 style='compute_size', hue='GPU',  ax=axes[1][3], s=marker_size)
-axes[1][3].set_xlabel('Compute size allocated')
+axes[1][3].set_xlabel('Compute size allocated', fontsize=text_size)
 axes[1][3].set_ylabel('')
 axes[1][3].get_legend().remove()
 
@@ -423,8 +402,8 @@ axes[2][0].fill_between([0, 100], [0, 0], [0, 100],
                         color='red', alpha=0.05, label='Less efficient')
 axes[2][0].text(36, 95, "More efficient")
 axes[2][0].text(99, 1, "Less efficient")
-axes[2][0].set_ylabel('Performance per container (%)')
-axes[2][0].set_xlabel('Power per container (%)')
+axes[2][0].set_ylabel('Performance per container (%)', fontsize=text_size)
+axes[2][0].set_xlabel('Power per container (%)', fontsize=text_size)
 axes[2][0].invert_xaxis()
 axes[2][0].get_legend().remove()
 
@@ -438,7 +417,7 @@ axes[2][1].fill_between([0, 100], [0, 0], [0, 100],
                         color='red', alpha=0.05, label='Less efficient')
 axes[2][1].text(36, 95, "More efficient")
 axes[2][1].text(99, 1, "Less efficient")
-axes[2][1].set_xlabel('Power per container (%)')
+axes[2][1].set_xlabel('Power per container (%)', fontsize=text_size)
 axes[2][1].set_ylabel('')
 axes[2][1].invert_xaxis()
 axes[2][1].get_legend().remove()
@@ -452,7 +431,7 @@ axes[2][2].fill_between([0, 100], [0, 100], [100, 100],
 axes[2][2].fill_between([0, 100], [0, 0], [0, 100], color='red', alpha=0.05)
 axes[2][2].text(36, 95, "More efficient")
 axes[2][2].text(99, 1, "Less efficient")
-axes[2][2].set_xlabel('Power per container (%)')
+axes[2][2].set_xlabel('Power per container (%)', fontsize=text_size)
 axes[2][2].set_ylabel('')
 axes[2][2].invert_xaxis()
 axes[2][2].get_legend().remove()
@@ -468,12 +447,15 @@ axes[2][3].fill_between([0, 100], [0, 100], [100, 100],
 axes[2][3].fill_between([0, 100], [0, 0], [0, 100],
                         color='red', alpha=0.05, label='Less efficient')
 
-axes[2][3].set_xlabel('Power per container (%)')
+axes[2][3].set_xlabel('Power per container (%)', fontsize=text_size)
 
 axes[2][3].set_ylabel('')
 axes[2][3].invert_xaxis()
 # sns.move_legend(axes[2][3], "lower right", bbox_to_anchor=(1.75, 1.25), frameon=True)
 sns.move_legend(axes[2][3], "lower left",
-                bbox_to_anchor=(-2.85, -0.4), frameon=True, ncol=6)
+                bbox_to_anchor=(-3.2, -0.4), frameon=True, ncol=6)
+axes[2][3].get_legend().set_title('', prop={'size': 14})
+for text in axes[2][3].get_legend().get_texts():
+    text.set_fontsize(14)
 
 plt.gcf().savefig('figures/MIG-GI-bench-all.pdf', bbox_inches='tight')
