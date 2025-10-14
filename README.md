@@ -76,23 +76,27 @@ Similarly for the other figures:
     * **Memory**: 432 MiB
     * **Execution Time**: ~3 seconds
 * **Figure 7**:
-    * **Command**: `python3 src/Sec-04_spatially-shared/Fig-07_MIG-GI-bench-all.py`:
-    * **Memory**: 1422 MiB
+    * **Command**: `python3 src/Sec-04_spatially-shared/Fig-07_MIG-GI-bench-zoom.py`:
+    * **Memory**: 1195 MiB
     * **Execution Time**: ~10 seconds
 * **Figure 8**:
-    * **Command**: `python3 src/Sec-05_pass-through/Fig-08_PT-pearson-corr-ipmi.py`:
+    * **Command**: `python3 src/Sec-04_spatially-shared/Fig-08_MIG-GI-bench-all.py`:
+    * **Memory**: 1422 MiB
+    * **Execution Time**: ~10 seconds
+* **Figure 9**:
+    * **Command**: `python3 src/Sec-05_pass-through/Fig-09_PT-pearson-corr-ipmi.py`:
     * **Memory**: 1173 MiB
     * **Execution Time**: ~5 seconds
-* **Figure 9**:
-    * **Command**: `python3 src/Sec-05_pass-through/Fig-09_PT-density-4A100-4states-corrected.py`:
+* **Figure 10**:
+    * **Command**: `python3 src/Sec-05_pass-through/Fig-10_PT-density-4A100-4states-corrected.py`:
     * **Memory**: 1760 MiB
     * **Execution Time**: ~6 minutes
-* **Figure 10**:
-    * **Command**: `python3 src/Sec-05_pass-through/Fig-10_PT-density-8A100-2states-corrected.py`:
+* **Figure 11**:
+    * **Command**: `python3 src/Sec-05_pass-through/Fig-11_PT-density-8A100-2states-corrected.py`:
     * **Memory**: 944 MiB
     * **Execution Time**: ~1 minute and 30 seconds
-* **Figure 11**:
-    * **Command**: `python3 src/Sec-05_pass-through/Fig-11_WC-GPU-temp-pwr-util.py`:
+* **Figure 12**:
+    * **Command**: `python3 src/Sec-05_pass-through/Fig-12_WC-GPU-temp-pwr-util.py`:
     * **Memory**: 705 MiB
     * **Execution Time**: ~4 seconds
 

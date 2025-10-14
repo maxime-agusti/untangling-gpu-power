@@ -3,6 +3,10 @@ import re
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
+import matplotlib
+
+matplotlib.rcParams['pdf.fonttype'] = 42
+matplotlib.rcParams['ps.fonttype'] = 42
 
 sns.color_palette("Set2")
 sns.set_theme(style="darkgrid")
@@ -88,11 +92,28 @@ driver_demo['CI_normalized'] = driver_demo['CI'].apply(
 driver_demo = driver_demo.drop(
     driver_demo[driver_demo.CI.str.contains("c.")].index)
 
-hue_order = driver_demo['CI'].unique()[:-1]  # exlude 7g
+driver_demo = driver_demo.loc[driver_demo['compute'] > 0]
 
-g = sns.relplot(data=driver_demo, x='compute', y='SMI_power.draw', kind='line', hue='CI', hue_order=hue_order,
-                style='CI', style_order=hue_order, col='GPU', sizes='CI', markers=True, dashes=False)
-g.set_ylabels("GPU power consumption (W)", clear_inner=False)
-g.set_xlabels("Compute slice allocated", clear_inner=False)
+hue_order = driver_demo['CI'].unique()  # [:-1] # exlude 7g
+
+g = sns.relplot(
+    data=driver_demo,
+    x='compute', y='SMI_power.draw',
+    kind='line',
+    hue='CI', hue_order=hue_order,
+    style='CI', style_order=hue_order,
+    col='GPU',
+    markers=True, dashes=False,
+    markersize=10,
+    errorbar=None
+)
+
 sns.move_legend(g, "lower right", bbox_to_anchor=(.88, .15), frameon=True)
+g._legend.set_title("CI", prop={'size': 14})
+for text in g._legend.get_texts():
+    text.set_fontsize(14)
+
+g.set_titles(col_template="{col_name}", size=14)
+g.set_ylabels("GPU power consumption (W)", clear_inner=False, fontsize=16)
+g.set_xlabels("Compute slice allocated", clear_inner=False, fontsize=16)
 plt.gcf().savefig('figures/MIG-driver.pdf', bbox_inches='tight')

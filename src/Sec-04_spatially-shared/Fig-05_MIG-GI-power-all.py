@@ -3,6 +3,10 @@ import numpy as np
 import re
 import matplotlib.pyplot as plt
 import seaborn as sns
+import matplotlib
+
+matplotlib.rcParams['pdf.fonttype'] = 42
+matplotlib.rcParams['ps.fonttype'] = 42
 
 sns.color_palette("Set2")
 sns.set_theme(style="darkgrid")
@@ -134,16 +138,21 @@ load_gpus['CI_normalized'] = load_gpus['CI'].apply(
 
 load_gpus_pure = load_gpus.drop(
     load_gpus[load_gpus.CI.str.contains("c.")].index)
+load_gpus_pure = load_gpus_pure[load_gpus_pure['compute'] > 0]
 
-hue_order = load_gpus_pure['CI_normalized'].unique()[:-1]  # exlude 7g
+hue_order = load_gpus_pure['CI_normalized'].unique()  # [:-1] # exlude 7g
 
-g = sns.relplot(data=load_gpus_pure, x='compute', y='SMI_power.draw', kind='line', hue='CI_normalized',
-                hue_order=hue_order, style='CI_normalized', style_order=hue_order, col='GPU', markers=True, dashes=False)
+g = sns.relplot(data=load_gpus_pure, x='compute', y='SMI_power.draw', kind='line', hue='CI_normalized', hue_order=hue_order, style='CI_normalized',
+                style_order=hue_order, col='GPU', markers=True, dashes=False, markersize=14)
 sns.move_legend(g, "lower right", bbox_to_anchor=(.94, .15), frameon=True)
-g._legend.set(title='CI normalized')
+g._legend.set_title("CI normalized", prop={'size': 18})  # title size
+for text in g._legend.get_texts():                  # legend labels size
+    text.set_fontsize(18)
 
 
-g.set_ylabels("GPU power consumption (W)", clear_inner=False)
-g.set_xlabels("Compute slice allocated", clear_inner=False)
+g.set_titles(col_template="{col_name}", size=18)
+g.set_ylabels("GPU power consumption (W)", clear_inner=False, fontsize=20)
+g.set_xlabels("Compute slice allocated", clear_inner=False, fontsize=20)
+
 
 plt.gcf().savefig('figures/MIG-GI-power-all.pdf', bbox_inches='tight')
